@@ -86,8 +86,8 @@ def eeg_prep():
 def img_prep():
     #Image list
 
-    training_imgpaths = np.array(1654*10) # classes x num of images per class
-    test_imgpaths = np.array(200) 
+    training_imgpaths = np.empty(0, dtype = '<U10') # classes x num of images per class
+    test_imgpaths = np.empty(0, dtype = '<U10') 
     
     for dirpath, dirnames, filenames in os.walk(img_train_dir):
         for filename in filenames:
@@ -96,7 +96,6 @@ def img_prep():
             training_imgpaths = np.append(training_imgpaths, full_path)
 
     print('\t Train images processed')
-
     for dirpath, dirnames, filenames in os.walk(img_test_dir):
         for filename in filenames:
             # Construct the full path to the file
@@ -111,14 +110,14 @@ def img_prep():
 
 
 if __name__ == '__main__':
-    print("EEG PREP")
-    eeg_prep()
-    print("SUCCESS")
+    # print("EEG PREP")
+    # eeg_prep()
+    # print("SUCCESS")
     
 
-    # print("IMAGE PREP")
-    # img_prep()
-    # print("SUCCESS")
+    print("IMAGE PREP")
+    img_prep()
+    print("SUCCESS")
    
     
 
