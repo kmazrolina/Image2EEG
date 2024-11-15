@@ -233,7 +233,8 @@ class Data4Model(torch.utils.data.Dataset):
         
         mean = np.load('GetData/preprocessed_mean_overall.npy')
         std = np.load('GetData/preprocessed_std_overall.npy')
-        eeg = np.load('preprocessed_eeg_data/sub-'+str(sub_index).zfill(2)+'_'+state+'.npy')
+        eeg = np.load('preprocessed_eeg_data/sub-'+str(sub_index).zfill(2)+'/preprocessed_eeg_'+state+'.npy', allow_pickle=True)
+
         eeg = (eeg-mean[sub_index-1])/std[sub_index-1]
         
         self.imgs = imgs
@@ -241,13 +242,14 @@ class Data4Model(torch.utils.data.Dataset):
         self.transform = transform
   
     def __len__(self):
-        return len(self.imgs)
+        return min(len(self.imgs), len(self.eeg))
   
     def __getitem__(self, item):
         imgs = self.transform(Image.open(self.imgs[item]).convert('RGB'))
         eeg = torch.tensor(self.eeg[item]).float()
-         
         return imgs, eeg
+        
+
 
 
 task_criterion = nn.CrossEntropyLoss()
@@ -314,7 +316,6 @@ def train_and_test(encoder, cornet, weightspath, task_criterion, mse_criterion, 
         niterates = 0
 
         for imgs, eeg in tqdm(train_data_loader):
-            
             imgs = imgs.to(device)
             eeg = eeg.to(device)
         
@@ -323,6 +324,9 @@ def train_and_test(encoder, cornet, weightspath, task_criterion, mse_criterion, 
         
             # forward
             outputs, pred = encoder(imgs)
+            pred = pred[:,20:40] # take only 200 ms after stimulus onset from predictions
+            eeg = eeg.mean(axis=1) # mean over eeg channels
+
             cornet_outputs = cornet(imgs)
             loss1 = mse_criterion(outputs, cornet_outputs)
             loss2 = gen_criterion(pred, eeg, mse_criterion)
@@ -357,7 +361,6 @@ def train_and_test(encoder, cornet, weightspath, task_criterion, mse_criterion, 
         niterates = 0
 
         for imgs, eeg in tqdm(test_data_loader):
-            
             imgs = imgs.to(device)
             eeg = eeg.to(device)
         
@@ -366,6 +369,8 @@ def train_and_test(encoder, cornet, weightspath, task_criterion, mse_criterion, 
         
             # forward
             outputs, pred = encoder(imgs)
+            pred = pred[:,20:40] # take only 200 ms after stimulus onset from predictions
+            eeg = eeg.mean(axis=1) # mean over eeg channels
             cornet_outputs = cornet(imgs)
             loss1 = mse_criterion(outputs, cornet_outputs)
             loss2 = gen_criterion(pred, eeg, mse_criterion)
@@ -405,12 +410,12 @@ def train_and_test(encoder, cornet, weightspath, task_criterion, mse_criterion, 
 
     
 # to train 10 ReAlnets based on 10 subjects' EEG data
-for i in range(10):
+for i in range(1):
     
     set_seed(2023)
     
-    encoder = Encoder(realnet, 340).to(device)
-    
+    #encoder = Encoder(realnet, 340).to(device)
+    encoder = Encoder(realnet, 100).to(device)
     optimizer = torch.optim.Adam(encoder.parameters(), lr=0.000002)
     weightspath = '/weights/ReAlnet_EEG/sub-'+str(i+1).zfill(2)+'/'
     os.makedirs(weightspath, exist_ok=True)
