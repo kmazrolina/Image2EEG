@@ -410,7 +410,7 @@ def train_and_test(encoder, cornet, weightspath, task_criterion, mse_criterion, 
 
     
 # to train 10 ReAlnets based on 10 subjects' EEG data
-for i in range(1):
+for i in range(10):
     
     set_seed(2023)
     
