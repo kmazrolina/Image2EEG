@@ -417,7 +417,7 @@ for i in range(1):
     #encoder = Encoder(realnet, 340).to(device)
     encoder = Encoder(realnet, 100).to(device)
     optimizer = torch.optim.Adam(encoder.parameters(), lr=0.000002)
-    weightspath = '/weights/ReAlnet_EEG/sub-'+str(i+1).zfill(2)+'/'
+    weightspath = 'weights/ReAlnet_EEG/sub-'+str(i+1).zfill(2)+'/'
     os.makedirs(weightspath, exist_ok=True)
     train_and_test(encoder, cornet, weightspath,
                    task_criterion, mse_criterion, gen_criterion, optimizer, transform, beta=100,
