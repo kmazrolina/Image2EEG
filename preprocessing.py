@@ -110,9 +110,9 @@ def img_prep():
 
 
 if __name__ == '__main__':
-    # print("EEG PREP")
-    # eeg_prep()
-    # print("SUCCESS")
+    print("EEG PREP")
+    eeg_prep()
+    print("SUCCESS")
     
 
     print("IMAGE PREP")

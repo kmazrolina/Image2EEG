@@ -2,7 +2,9 @@
 GetData/
 Images/
 preprocessed_eeg_data/
+all_preprocessed_eeg_data/
 weights/
 cmd.sh
 job.sh
 run_job
+*.out
