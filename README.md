@@ -1,5 +1,7 @@
 # Image to EEG
-Reconstructing EEG activity from Images
+Reconstructing EEG activity from Images.
+
+Based on [Lu, Zitong, Yile Wang, and Julie D. Golomb. "Achieving more human brain-like vision via human EEG representational alignment." ArXiv (2024)](https://pmc.ncbi.nlm.nih.gov/articles/PMC10862929/).
 
 ## Purpose of the project
 Our project about EEG Encoding is focused on advancing the understanding of human visual object recognition by utilizing EEG data in combination with deep neural networks (DNNs). This project contributes to the intersection of neuroscience and artificial intelligence, particularly in encoding and decoding the human brain’s visual responses.
