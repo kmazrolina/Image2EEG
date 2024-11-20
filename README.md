@@ -5,7 +5,7 @@ Reconstructing EEG activity from Images
 Our project about EEG Encoding is focused on advancing the understanding of human visual object recognition by utilizing EEG data in combination with deep neural networks (DNNs). This project contributes to the intersection of neuroscience and artificial intelligence, particularly in encoding and decoding the human brain’s visual responses.
 
 ## Quick Start
-Pretrained weights of ReAlNet model are available at (https://huggingface.co/kmazrolina/ReAlNet)[huggingface].
+Pretrained weights of ReAlNet model are available at [huggingface](https://huggingface.co/kmazrolina/ReAlNet).
 
 ## Contents of the Repository:
 - `download_dataset.py` - utility script to download [THINGSEEG2 dataset](https://github.com/gifale95/eeg_encoding) needed for training.
