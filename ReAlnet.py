@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
+'''
+Train and test ReAlnet Encoder
+
+This code is based on ReAlnet - A Convolutional Neural Network 
+with Human EEG Representational Alignment
+by  Lu Zitong, Yile Wang, and Julie D. Golomb
+https://github.com/ZitongLu1996/ReAlnet
+
+'''
 
 import math
 from collections import OrderedDict
@@ -22,7 +31,15 @@ import clip
 from scipy.stats import spearmanr
 from torchmetrics.functional.regression import spearman_corrcoef
 
-device = 'cuda'
+torch.set_default_dtype(torch.float32)
+
+transform = transforms.Compose(
+    [
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ]
+)
 
 
 def set_seed(seed):
@@ -194,31 +211,6 @@ class Encoder(nn.Module):
         return outputs, features
 
 
-torch.set_default_dtype(torch.float32)
-
-transform = transforms.Compose(
-    [
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ]
-)
-
-# this cornet will be used for getting imagenet-based outputs as the classification targets
-cornet = CORnet_S().to(device)
-cornet = torch.nn.DataParallel(cornet)
-url = f'https://s3.amazonaws.com/cornet-models/cornet_s-1d3f7974.pth'
-ckpt_data = torch.utils.model_zoo.load_url(url)
-cornet.load_state_dict(ckpt_data['state_dict'])
-
-# this FAnet is what we are going to train
-realnet = CORnet_S().to(device)
-realnet = torch.nn.DataParallel(realnet)
-url = f'https://s3.amazonaws.com/cornet-models/cornet_s-1d3f7974.pth'
-ckpt_data = torch.utils.model_zoo.load_url(url)
-realnet.load_state_dict(ckpt_data['state_dict'])
-
-
 class Data4Model(torch.utils.data.Dataset):
     def __init__(self, state='training', sub_index=1, transform=None):
         
@@ -251,11 +243,6 @@ class Data4Model(torch.utils.data.Dataset):
         
 
 
-
-task_criterion = nn.CrossEntropyLoss()
-
-mse_criterion = nn.MSELoss()
-
 class Gen_criterion(nn.Module):
     def __init__(self):
         super().__init__()
@@ -277,7 +264,7 @@ class Gen_criterion(nn.Module):
         loss = loss1 + loss2
         return loss
 
-gen_criterion = Gen_criterion()
+
 
 
 def train_and_test(encoder, cornet, weightspath, task_criterion, mse_criterion, gen_criterion, optimizer, transform,
@@ -408,20 +395,39 @@ def train_and_test(encoder, cornet, weightspath, task_criterion, mse_criterion, 
     print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
     print(f'Best test Loss: {best_loss:4f}')
 
-    
-# to train 10 ReAlnets based on 10 subjects' EEG data
-for i in range(10):
-    
-    set_seed(2023)
-    
-    #encoder = Encoder(realnet, 340).to(device)
-    encoder = Encoder(realnet, 100).to(device)
-    optimizer = torch.optim.Adam(encoder.parameters(), lr=0.000002)
-    weightspath = 'weights/ReAlnet_EEG/sub-'+str(i+1).zfill(2)+'/'
-    os.makedirs(weightspath, exist_ok=True)
-    train_and_test(encoder, cornet, weightspath,
-                   task_criterion, mse_criterion, gen_criterion, optimizer, transform, beta=100,
-                   sub_index=i+1, batchsize=16, num_epochs=25)
+if __name__=="__main__":
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # this cornet will be used for getting imagenet-based outputs as the classification targets
+    cornet = CORnet_S().to(device)
+    cornet = torch.nn.DataParallel(cornet)
+    url = f'https://s3.amazonaws.com/cornet-models/cornet_s-1d3f7974.pth'
+    ckpt_data = torch.utils.model_zoo.load_url(url)
+    cornet.load_state_dict(ckpt_data['state_dict'])
+
+    # this FAnet is what we are going to train
+    realnet = CORnet_S().to(device)
+    realnet = torch.nn.DataParallel(realnet)
+    url = f'https://s3.amazonaws.com/cornet-models/cornet_s-1d3f7974.pth'
+    ckpt_data = torch.utils.model_zoo.load_url(url)
+    realnet.load_state_dict(ckpt_data['state_dict'])
+
+    task_criterion = nn.CrossEntropyLoss()
+    mse_criterion = nn.MSELoss()
+    gen_criterion = Gen_criterion()
+
+    # to train 10 ReAlnets based on 10 subjects' EEG data
+    for i in range(10):
+        
+        set_seed(2023)
+        
+        #encoder = Encoder(realnet, 340).to(device)
+        encoder = Encoder(realnet, 100).to(device)
+        optimizer = torch.optim.Adam(encoder.parameters(), lr=0.000002)
+        weightspath = 'weights/ReAlnet_EEG/sub-'+str(i+1).zfill(2)+'/'
+        os.makedirs(weightspath, exist_ok=True)
+        train_and_test(encoder, cornet, weightspath,
+                    task_criterion, mse_criterion, gen_criterion, optimizer, transform, beta=100,
+                    sub_index=i+1, batchsize=16, num_epochs=25)
 
 
 
