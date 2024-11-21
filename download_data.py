@@ -1,3 +1,11 @@
+'''
+Downloads data from THINGSEEG2 dataset 
+
+Images
+EEG - train and test sets for 10 subjects
+
+Full datased size ~=50GB 
+'''
 import os
 import zipfile
 import urllib.request
