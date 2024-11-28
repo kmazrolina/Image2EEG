@@ -1,3 +1,5 @@
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/19QRmkGc8Sl6qoZ23wTa16o0XJTGv5R-L?usp=sharing)
+
 # Image to EEG
 Reconstructing EEG activity from Images.
 
@@ -8,6 +10,8 @@ Our project about EEG Encoding is focused on advancing the understanding of huma
 
 ## Quick Start
 Pretrained weights of ReAlNet model are available at [huggingface](https://huggingface.co/kmazrolina/ReAlNet).
+You can also run example inference in this [Google Colab Notebook](https://colab.research.google.com/drive/19QRmkGc8Sl6qoZ23wTa16o0XJTGv5R-L?usp=sharing)
+.
 
 ## Contents of the Repository:
 - `download_dataset.py` - utility script to download [THINGSEEG2 dataset](https://github.com/gifale95/eeg_encoding) needed for training.
