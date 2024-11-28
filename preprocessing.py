@@ -36,48 +36,49 @@ def eeg_prep(sub_ids=[i for i in range (1,11)]):
     preprocessed_mean_overall = [] #2d array (10,17) subjects x eeg chanels
     preprocessed_std_overall = []
 
-    for i in sub_ids:
-        print(f'\tProcessing EEG data from subject {i+1}...')
-        subject_dir = f'sub-{str(i).zfill(2)}'
-        train_data_path = os.path.join(eeg_dir, subject_dir, 'preprocessed_eeg_training.npy')
-        test_data_path = os.path.join(eeg_dir, subject_dir, 'preprocessed_eeg_test.npy')
+    for i in range (1,11):
+        if i in sub_ids:
+            print(f'\tProcessing EEG data from subject {i}...')
+            subject_dir = f'sub-{str(i).zfill(2)}'
+            train_data_path = os.path.join(eeg_dir, subject_dir, 'preprocessed_eeg_training.npy')
+            test_data_path = os.path.join(eeg_dir, subject_dir, 'preprocessed_eeg_test.npy')
 
-        eeg_data_train = np.load(train_data_path, allow_pickle=True).tolist()['preprocessed_eeg_data']
-        eeg_data_test = np.load(test_data_path, allow_pickle=True).tolist()['preprocessed_eeg_data']
+            eeg_data_train = np.load(train_data_path, allow_pickle=True).tolist()['preprocessed_eeg_data']
+            eeg_data_test = np.load(test_data_path, allow_pickle=True).tolist()['preprocessed_eeg_data']
 
-        ## Resampling eeg
-        print(eeg_data_test.shape)
-        # Take only 200ms after stimulus onset
-        #  time steps are every 10ms, and there is 20 steps before stimulus onset
-        eeg_data_train = eeg_data_train[:,:,:,20:40] 
-        eeg_data_test = eeg_data_test[:,:,:,20:40]
-        print(eeg_data_test.shape)
+            ## Resampling eeg
+            # Take only 200ms after stimulus onset
+            #  time steps are every 10ms, and there is 20 steps before stimulus onset
+            eeg_data_train = eeg_data_train[:,:,:,20:40] 
+            eeg_data_test = eeg_data_test[:,:,:,20:40]
 
-        # Average acorss image repetitions
-        eeg_data_train = np.mean(eeg_data_train, 1)
-        eeg_data_test = np.mean(eeg_data_test, 1)
-        print(eeg_data_test.shape)
+            # Average acorss image repetitions
+            eeg_data_train = np.mean(eeg_data_train, 1)
+            eeg_data_test = np.mean(eeg_data_test, 1)
 
-        print('Saving...')
-        #Overrites original data
-        np.save(train_data_path, eeg_data_train)
-        np.save(test_data_path, eeg_data_test)
+            print('Saving...')
+            #Overrites original data
+            np.save(train_data_path, eeg_data_train)
+            np.save(test_data_path, eeg_data_test)
 
 
-        ## Std and Mean across images
-        mean_train = np.mean(eeg_data_train, 0)
-        mean_test = np.mean(eeg_data_test, 0)
-        mean_all = (mean_train + mean_test)/ 2  
+            ## Std and Mean across images
+            mean_train = np.mean(eeg_data_train, 0)
+            mean_test = np.mean(eeg_data_test, 0)
+            mean_all = (mean_train + mean_test)/ 2  
 
-        std_train = np.std(eeg_data_train, 0)
-        std_test = np.std(eeg_data_test, 0)
-        std_all = (std_train + std_test) / 2
+            std_train = np.std(eeg_data_train, 0)
+            std_test = np.std(eeg_data_test, 0)
+            std_all = (std_train + std_test) / 2
         
-        preprocessed_mean_overall.append(mean_all)
-        preprocessed_std_overall.append(std_all)
+            preprocessed_mean_overall.append(mean_all)
+            preprocessed_std_overall.append(std_all)
 
-
-        print(f'\tEEG data from subject {i} processed.')
+            print(f'\tEEG data from subject {i} processed.')
+        else:
+            #append 0 mean and std for non existent subjecst
+            preprocessed_mean_overall.append(np.zeros((17,20))) 
+            preprocessed_std_overall.append(np.zeros((17,20)))
 
     print('Saving...')
     np.save(os.path.join(get_data_dir,'preprocessed_mean_overall.npy'), preprocessed_mean_overall)
