@@ -5,10 +5,14 @@ Images
 EEG - train and test sets for 10 subjects
 
 Full datased size ~=50GB 
+
+USAGE:
+python download_data.py --subject-indices 1 2 3 
 '''
 import os
 import zipfile
 import urllib.request
+import argparse
 
 def setup_dir(dir_path):
     if not os.path.exists(dir_path):
@@ -48,6 +52,9 @@ def unzip_data(zip_file_path, zip_directory='.'):
 
 if __name__ == "__main__":
     
+    parser = argparse.ArgumentParser()
+    sub_ids = parser.add_argument('--subject-indices', nargs='+', type=int, default=[i for i in range (1,11)])
+
     get_data_dir = 'GetData'
     preprocessed_eeg_dir = 'preprocessed_eeg_data'
     images_dir = 'Images'
@@ -87,8 +94,8 @@ if __name__ == "__main__":
            unzip_data(os.path.join(entry['dir'], entry['filename']), entry['dir'])  
 
     # unzip data for all subjects
-    for i in range(10):
-        filename = f'sub-{str(i+1).zfill(2)}.zip'
+    for sub_id in sub_ids:
+        filename = f'sub-{str(sub_id).zfill(2)}.zip'
         unzip_data(os.path.join(preprocessed_eeg_dir, filename), preprocessed_eeg_dir)  
 
     

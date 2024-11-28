@@ -94,13 +94,15 @@ def predict_batch(encoder, imgs, eeg, batch_size, pred_output_dir, device='cuda'
         plt.savefig(os.path.join(pred_output_dir,f"pred{i}.png"), dpi=300)  # Save as a high-res PNG
         plt.close()
         print("saved prediction ", i)
+    
+    return outputs, pred
 
 
 if __name__ == "__main__":
     print("START EVAL")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    sub_index = 2 # choose subject id 1-10
+    sub_index = 3 # choose subject id 1-10
 
     # Path to model weights
     weightspath = 'weights/ReAlnet_EEG/sub-'+str(sub_index).zfill(2)+'/best_model_params.pt'
@@ -120,5 +122,9 @@ if __name__ == "__main__":
     test_data_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
     imgs, eeg = next(iter(test_data_loader))
 
-    for i in range(batch_size):
-        predict_batch(encoder, imgs, eeg, batch_size, pred_output_dir, device)
+    encodings, predictions = predict_batch(encoder, imgs, eeg, batch_size, pred_output_dir, device)
+    
+    print("encodings ", encodings.shape)
+    print("predictions ", predictions.shape)
+    ## You can also predict on cornet-model
+    # encodings, predictions = predict_batch(cornet, imgs, eeg, batch_size, pred_output_dir, device)
