@@ -31,14 +31,14 @@ get_data_dir = 'GetData'
 img_train_dir = 'Images/training_images'
 img_test_dir = 'Images/test_images'
 
-def eeg_prep():
+def eeg_prep(sub_ids=[i for i in range (1,11)]):
     # EEG mean and std for each subject, for every eeg channel 
     preprocessed_mean_overall = [] #2d array (10,17) subjects x eeg chanels
     preprocessed_std_overall = []
 
-    for i in range(10):
+    for i in sub_ids:
         print(f'\tProcessing EEG data from subject {i+1}...')
-        subject_dir = f'sub-{str(i+1).zfill(2)}'
+        subject_dir = f'sub-{str(i).zfill(2)}'
         train_data_path = os.path.join(eeg_dir, subject_dir, 'preprocessed_eeg_training.npy')
         test_data_path = os.path.join(eeg_dir, subject_dir, 'preprocessed_eeg_test.npy')
 
@@ -77,7 +77,7 @@ def eeg_prep():
         preprocessed_std_overall.append(std_all)
 
 
-        print(f'\tEEG data from subject {i+1} processed.')
+        print(f'\tEEG data from subject {i} processed.')
 
     print('Saving...')
     np.save(os.path.join(get_data_dir,'preprocessed_mean_overall.npy'), preprocessed_mean_overall)
